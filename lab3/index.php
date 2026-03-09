@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Задание 3</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<form action="submit.php" method="POST">
+
+ФИО:<br>
+<input type="text" name="fio" required><br><br>
+
+Телефон:<br>
+<input type="tel" name="phone" required><br><br>
+
+Email:<br>
+<input type="email" name="email" required><br><br>
+
+Дата рождения:<br>
+<input type="date" name="birthdate" required><br><br>
+
+Пол:<br>
+<input type="radio" name="gender" value="male" required> Мужской
+<input type="radio" name="gender" value="female"> Женский<br><br>
+
+Любимые языки:<br>
+<select name="languages[]" multiple required>
+<option value="1">Pascal</option>
+<option value="2">C</option>
+<option value="3">C++</option>
+<option value="4">JavaScript</option>
+<option value="5">PHP</option>
+<option value="6">Python</option>
+<option value="7">Java</option>
+<option value="8">Haskell</option>
+<option value="9">Clojure</option>
+<option value="10">Prolog</option>
+<option value="11">Scala</option>
+<option value="12">Go</option>
+</select><br><br>
+
+Биография:<br>
+<textarea name="biography" required></textarea><br><br>
+
+<input type="checkbox" name="contract" required> С контрактом ознакомлен<br><br>
+
+<button type="submit">Сохранить</button>
+
+</form>
+</body>
+</html>
