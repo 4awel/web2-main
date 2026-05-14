@@ -1,0 +1,20 @@
+[
+    {
+        "id": 2,
+        "name": "Мария Сидорова",
+        "email": "maria@example.com",
+        "languages": [
+            "Java",
+            "Python"
+        ]
+    },
+    {
+        "id": 3,
+        "name": "Алексей Иванов",
+        "email": "alex@example.com",
+        "languages": [
+            "PHP",
+            "Go"
+        ]
+    }
+]
