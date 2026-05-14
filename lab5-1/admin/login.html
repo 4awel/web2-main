@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход</title>
+    <link rel="stylesheet" href="./style/login.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Вход в систему</h2>
+        <div id="error" class="error" style="display: none;"></div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label>Пароль</label>
+                <input type="password" id="password" required>
+            </div>
+            <button type="submit">Войти</button>
+        </form>
+        <div class="link">
+            Нет аккаунта? <a href="register.html">Зарегистрироваться</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { authService } from './auth.service.js';
+
+        const form = document.getElementById('loginForm');
+        const errorDiv = document.getElementById('error');
+
+        if (authService.isAuthenticated()) {
+            window.location.href = '/admin.html';
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            errorDiv.style.display = 'none';
+
+            try {
+                const response = await authService.login(email, password);
+                
+                if (response.success) {
+                    window.location.href = '/admin.html';
+                } else {
+                    showError(response.error || 'Ошибка входа');
+                }
+            } catch (error) {
+                showError('Ошибка соединения с сервером');
+            }
+        });
+
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

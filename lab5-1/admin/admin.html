@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ панель</title>
+    <link rel="stylesheet" href="./style/admin.css">
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">Admin Panel</div>
+        <div class="user-info">
+            <span class="user-email" id="userEmail"></span>
+            <button class="logout-btn" id="logoutBtn">Выйти</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h1>Добро пожаловать в админ панель Братан!</h1>
+            <div class="info">
+                <p>Вы успешно авторизованы</p>
+                <p>истема работает с refresh токенами</p>
+                <p>Access token действителен 15 минут</p>
+                <p>Refresh token действителен 7 дней</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Статус токенов</h2>
+            <div id="tokenStatus">
+                <span class="status success">Активен</span>
+            </div>
+            <button class="refresh-btn" id="refreshDataBtn">Обновить данные</button>
+            <div class="token-info" id="tokenInfo"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { authService } from './auth.service.js';
+        import { tokenHelper } from './helpers/token.helper.js';
+        import { axiosClient } from './plugin/axios.js';
+
+        if (!authService.isAuthenticated()) {
+            window.location.href = '/login.html';
+        }
+
+        const user = authService.getCurrentUser();
+        if (user) {
+            document.getElementById('userEmail').textContent = user.email;
+        }
+
+        function displayTokenInfo() {
+            const tokenData = tokenHelper.getTokenData();
+            if (tokenData) {
+                const expDate = new Date(tokenData.exp * 1000);
+                const info = `
+                    <strong>Информация о токене:</strong><br>
+                    User ID: ${tokenData.sub}<br>
+                    Email: ${tokenData.email}<br>
+                    Истекает: ${expDate.toLocaleString()}<br>
+                    Осталось: ${Math.floor((tokenData.exp * 1000 - Date.now()) / 60000)} минут
+                `;
+                document.getElementById('tokenInfo').innerHTML = info;
+            }
+        }
+
+        displayTokenInfo();
+
+        document.getElementById('refreshDataBtn').addEventListener('click', async () => {
+            try {
+                const response = await axiosClient.get('/auth/validate', { token: tokenHelper.getAccessToken() });
+                if (response.success) {
+                    alert('Данные успешно обновлены!');
+                    displayTokenInfo();
+                }
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+                alert('Ошибка при обновлении данных');
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await authService.logout();
+        });
+
+        setInterval(() => {
+            if (!authService.isAuthenticated()) {
+                alert('Сессия истекла. Пожалуйста, войдите снова.');
+                window.location.href = '/login.html';
+            } else {
+                displayTokenInfo();
+            }
+        }, 60000);
+    </script>
+</body>
+</html>
