@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Аудит безопасности - Лабораторная работа №7</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        background: linear-gradient(135deg, #474747 0%, #000000 100%);
+        padding: 40px 20px;
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .header {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        margin-bottom: 30px;
+        text-align: center;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      }
+
+      .header h1 {
+        font-size: 2.5em;
+        color: #1ad06f;
+        margin-bottom: 10px;
+      }
+
+      .header .subtitle {
+        color: #666;
+        font-size: 1.1em;
+      }
+
+      .meta-info {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        flex-wrap: wrap;
+      }
+
+      .meta-item {
+        background: #f5f5f5;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9em;
+      }
+
+      .toc {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .toc h2 {
+        color: #333;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #45c18b;
+      }
+
+      .toc-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+      }
+
+      .toc-item {
+        background: #f8f9fa;
+        padding: 12px 20px;
+        border-radius: 10px;
+        text-decoration: none;
+        color: #47a77f;
+        font-weight: 500;
+        transition: all 0.3s;
+        display: block;
+      }
+
+      .toc-item:hover {
+        background: #53aa69;
+        color: white;
+        transform: translateX(5px);
+      }
+
+      .vulnerability-card {
+        background: white;
+        border-radius: 20px;
+        margin-bottom: 30px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s;
+      }
+
+      .vulnerability-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .card-header {
+        padding: 25px 30px;
+        border-left: 5px solid;
+      }
+
+      .risk-high {
+        border-left-color: #dc3545;
+        background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+      }
+
+      .risk-medium {
+        border-left-color: #ffc107;
+        background: linear-gradient(135deg, #fffbf0 0%, #ffffff 100%);
+      }
+
+      .risk-critical {
+        border-left-color: #721c24;
+        background: linear-gradient(135deg, #fff0f0 0%, #ffffff 100%);
+      }
+
+      .card-header h2 {
+        font-size: 1.8em;
+        margin-bottom: 10px;
+      }
+
+      .risk-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8em;
+        font-weight: bold;
+        margin-left: 15px;
+      }
+
+      .risk-high-badge {
+        background: #dc3545;
+        color: white;
+      }
+
+      .risk-medium-badge {
+        background: #ffc107;
+        color: #333;
+      }
+
+      .risk-critical-badge {
+        background: #721c24;
+        color: white;
+      }
+
+      .card-body {
+        padding: 0 30px 30px 30px;
+      }
+
+      .vuln-description {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+      }
+
+      .code-block {
+        background: #2d2d2d;
+        color: #f8f8f2;
+        padding: 20px;
+        border-radius: 10px;
+        overflow-x: auto;
+        margin: 15px 0;
+        font-family: "Courier New", Courier, monospace;
+        font-size: 14px;
+      }
+
+      .code-block pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
+      .bad-code {
+        border-left: 4px solid #dc3545;
+        background: #2d2d2d;
+      }
+
+      .good-code {
+        border-left: 4px solid #28a745;
+        background: #2d2d2d;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85em;
+        margin-right: 10px;
+      }
+
+      .badge-danger {
+        background: #dc3545;
+        color: white;
+      }
+
+      .badge-success {
+        background: #28a745;
+        color: white;
+      }
+
+      .method-list {
+        background: #e7f3ff;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 15px 0;
+      }
+
+      .method-list h4 {
+        color: #31af70;
+        margin-bottom: 10px;
+      }
+
+      .summary-table {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        margin-top: 30px;
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      th {
+        background: #50c195;
+        color: white;
+      }
+
+      tr:hover {
+        background: #f5f5f5;
+      }
+
+      .footer {
+        text-align: center;
+        padding: 30px;
+        color: white;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 0;
+        }
+
+        .card-header h2 {
+          font-size: 1.3em;
+        }
+
+        .code-block {
+          font-size: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🔒 Аудит безопасности веб-приложения</h1>
+        <p class="subtitle">
+          PHP Admin Panel - Полный отчёт по уязвимостям и методам защиты
+        </p>
+        <div class="meta-info">
+          <div class="meta-item">👤 Студент: Денис Шадрин</div>
+          <div class="meta-item">📅 Дата: 15 мая 2026</div>
+          <div class="meta-item">📊 Версия: 1.0</div>
+          <div class="meta-item">🎯 OWASP Top 10</div>
+        </div>
+      </div>
+
+      <div class="toc">
+        <h2>📋 Содержание</h2>
+        <div class="toc-grid">
+          <a href="#xss" class="toc-item">1. XSS (Cross-Site Scripting)</a>
+          <a href="#info-disclosure" class="toc-item"
+            >2. Information Disclosure</a
+          >
+          <a href="#sql-injection" class="toc-item">3. SQL Injection</a>
+          <a href="#csrf" class="toc-item">4. CSRF</a>
+          <a href="#file-inclusion" class="toc-item">5. File Inclusion</a>
+          <a href="#file-upload" class="toc-item">6. File Upload</a>
+        </div>
+      </div>
+
+      <!-- 1. XSS -->
+      <div id="xss" class="vulnerability-card">
+        <div class="card-header risk-high">
+          <h2>
+            1. XSS (Cross-Site Scripting)
+            <span class="risk-badge risk-high-badge">Риск: ВЫСОКИЙ</span>
+          </h2>
+          <p>Межсайтовый скриптинг - внедрение вредоносного JavaScript-кода</p>
+        </div>
+        <div class="card-body">
+          <div class="vuln-description">
+            <h3>🔴 Описание уязвимости</h3>
+            <p>
+              Злоумышленник может внедрить вредоносный JavaScript-код через поля
+              ввода (имя, email) или через данные из JSON файла. При выводе без
+              экранирования скрипт выполнится в браузере других пользователей.
+            </p>
+            <p>
+              <strong>Пример атаки:</strong> Ввод в поле имени:
+              <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code>
+            </p>
+          </div>
+
+          <h3>⚠️ Уязвимый код</h3>
+          <div class="code-block bad-code">
+            <pre>
+&lt;?php
+// Прямой вывод без экранирования
+echo $user['name'];
+echo $user['email'];
+?&gt;</pre
+            >
+          </div>
+
+          <h3>✅ Защищённый код</h3>
+          <div class="code-block good-code">
+            <pre>
+&lt;?php
+// Функция для безопасного вывода
+function h($string) {
+    return htmlspecialchars($string, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+}
+
+// Использование
+echo h($user['name']);
+echo h($user['email']);
+?&gt;</pre
+            >
+          </div>
+
+          <div class="method-list">
+            <h4>🛡️ Применённые методы защиты:</h4>
+            <ul>
+              <li>
+                Экранирование специальных символов HTML с помощью
+                <code>htmlspecialchars()</code>
+              </li>
+              <li>
+                Валидация входящих данных <code>strip_tags()</code> и
+                <code>filter_var()</code>
+              </li>
+              <li>
+                Установка CSP заголовка:
+                <code>Content-Security-Policy: default-src 'self'</code>
+              </li>
+              <li>Установка <code>X-XSS-Protection: 1; mode=block</code></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Information Disclosure -->
+      <div id="info-disclosure" class="vulnerability-card">
+        <div class="card-header risk-medium">
+          <h2>
+            2. Information Disclosure
+            <span class="risk-badge risk-medium-badge">Риск: СРЕДНИЙ</span>
+          </h2>
+          <p>Раскрытие конфиденциальной информации</p>
+        </div>
+        <div class="card-body">
+          <div class="vuln-description">
+            <h3>🔴 Описание уязвимости</h3>
+            <p>
+              Злоумышленник может получить доступ к путям файлов, версии PHP,
+              содержимому конфигурационных файлов и отладочной информации.
+            </p>
+          </div>
+
+          <h3>⚠️ Уязвимый код</h3>
+          <div class="code-block bad-code">
+            <pre>
+&lt;?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+// Прямой доступ к config.php
+?&gt;</pre
+            >
+          </div>
+
+          <h3>✅ Защищённый код</h3>
+          <div class="code-block good-code">
+            <pre>
+&lt;?php
+// Отключение показа ошибок
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+error_reporting(E_ALL);
+
+// Защита конфигурационных файлов
+defined('APP_START') or die('Direct access not allowed');
+
+// Скрытие информации о сервере
+header('X-Powered-By: unknown');
+?&gt;</pre
+            >
+          </div>
+
+          <div class="method-list">
+            <h4>🛡️ Применённые методы защиты:</h4>
+            <ul>
+              <li>Отключение показа ошибок в production</li>
+              <li>
+                Защита конфигурационных файлов через
+                <code>defined('APP_START')</code>
+              </li>
+              <li>
+                .htaccess с <code>ServerSignature Off</code> и
+                <code>Options -Indexes</code>
+              </li>
+              <li>Пользовательская обработка ошибок без раскрытия деталей</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. SQL Injection -->
+      <div id="sql-injection" class="vulnerability-card">
+        <div class="card-header risk-critical">
+          <h2>
+            3. SQL Injection
+            <span class="risk-badge risk-critical-badge"
+              >Риск: КРИТИЧЕСКИЙ</span
+            >
+          </h2>
+          <p>Внедрение вредоносного SQL-кода в запросы к базе данных</p>
+        </div>
+        <div class="card-body">
+          <div class="vuln-description">
+            <h3>🔴 Описание уязвимости</h3>
+            <p>
+              При использовании SQL БД злоумышленник может внедрить вредоносный
+              SQL-код, получая несанкционированный доступ к данным.
+            </p>
+          </div>
+
+          <h3>⚠️ Уязвимый код</h3>
+          <div class="code-block bad-code">
+            <pre>
+&lt;?php
+$id = $_GET['id'];
+$query = "SELECT * FROM users WHERE id = " . $id; // УЯЗВИМО!
+?&gt;</pre
+            >
+          </div>
+
+          <h3>✅ Защищённый код</h3>
+          <div class="code-block good-code">
+            <pre>
+&lt;?php
+// Подготовленные запросы PDO
+class Database {
+    private $pdo;
+    
+    public function getUserById($id) {
+        $stmt = $this->pdo->prepare('SELECT * FROM users WHERE id = :id');
+        $stmt->execute([':id' => $id]);
+        return $stmt->fetch();
+    }
+}
+?&gt;</pre
+            >
+          </div>
+
+          <div class="method-list">
+            <h4>🛡️ Применённые методы защиты:</h4>
+            <ul>
+              <li>Использование подготовленных запросов (PDO)</li>
+              <li>Валидация типов данных через <code>filter_var()</code></li>
+              <li>Отключение эмуляции подготовленных запросов</li>
+              <li>Для JSON: рекурсивная очистка данных</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. CSRF -->
+      <div id="csrf" class="vulnerability-card">
+        <div class="card-header risk-high">
+          <h2>
+            4. CSRF
+            <span class="risk-badge risk-high-badge">Риск: ВЫСОКИЙ</span>
+          </h2>
+          <p>Cross-Site Request Forgery - подделка межсайтовых запросов</p>
+        </div>
+        <div class="card-body">
+          <div class="vuln-description">
+            <h3>🔴 Описание уязвимости</h3>
+            <p>
+              Злоумышленник может заставить авторизованного пользователя
+              выполнить нежелательные действия (удаление данных, изменение
+              информации).
+            </p>
+          </div>
+
+          <h3>✅ Защищённый код</h3>
+          <div class="code-block good-code">
+            <pre>
+&lt;?php
+session_start();
+
+function generateCSRFToken() {
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+function verifyCSRFToken($token) {
+    return hash_equals($_SESSION['csrf_token'], $token);
+}
+
+// В форме
+&lt;input type="hidden" name="csrf_token" value="&lt;?php echo generateCSRFToken(); ?&gt;"&gt;
+?&gt;</pre
+            >
+          </div>
+
+          <div class="method-list">
+            <h4>🛡️ Применённые методы защиты:</h4>
+            <ul>
+              <li>Генерация и проверка CSRF-токенов</li>
+              <li>
+                Использование <code>hash_equals()</code> для защиты от timing
+                attacks
+              </li>
+              <li>Установка SameSite=Strict для cookies</li>
+              <li>Проверка HTTP Referer (дополнительно)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. File Inclusion -->
+      <div id="file-inclusion" class="vulnerability-card">
+        <div class="card-header risk-high">
+          <h2>
+            5. File Inclusion
+            <span class="risk-badge risk-high-badge">Риск: ВЫСОКИЙ</span>
+          </h2>
+          <p>Включение внешних файлов</p>
+        </div>
+        <div class="card-body">
+          <div class="vuln-description">
+            <h3>🔴 Описание уязвимости</h3>
+            <p>
+              Злоумышленник может включить (include) внешние файлы, что приводит
+              к выполнению вредоносного кода или раскрытию данных.
+            </p>
+          </div>
+
+          <h3>✅ Защищённый код</h3>
+          <div class="code-block good-code">
+            <pre>
+&lt;?php
+function safeInclude($file) {
+    $allowedFiles = ['config.php', 'functions.php'];
+    
+    if (in_array($file, $allowedFiles)) {
+        include_once(__DIR__ . '/' . $file);
+    } else {
+        die('Access denied');
+    }
+}
+
+// Использование
+safeInclude('config.php');
+?&gt;</pre
+            >
+          </div>
+
+          <div class="method-list">
+            <h4>🛡️ Применённые методы защиты:</h4>
+            <ul>
+              <li>Использование белых списков разрешённых файлов</li>
+              <li>Валидация путей через <code>realpath()</code></li>
+              <li>Проверка, что файл находится внутри проекта</li>
+              <li>Запрет включения файлов из пользовательского ввода</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. File Upload -->
+      <div id="file-upload" class="vulnerability-card">
+        <div class="card-header risk-high">
+          <h2>
+            6. File Upload
+            <span class="risk-badge risk-high-badge">Риск: ВЫСОКИЙ</span>
+          </h2>
+          <p>Загрузка вредоносных файлов на сервер</p>
+        </div>
+        <div class="card-body">
+          <div class="vuln-description">
+            <h3>🔴 Описание уязвимости</h3>
+            <p>
+              Злоумышленник может загрузить вредоносный файл (shell.php) на
+              сервер, что приводит к выполнению кода или DoS-атаке.
+            </p>
+          </div>
+
+          <h3>✅ Защищённый код</h3>
+          <div class="code-block good-code">
+            <pre>
+&lt;?php
+class SecureFileUpload {
+    private $allowedTypes = ['image/jpeg', 'image/png'];
+    private $maxFileSize = 5242880; // 5 MB
+    
+    public function upload($file) {
+        // Проверка MIME типа
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $file['tmp_name']);
+        
+        if (!in_array($mimeType, $this->allowedTypes)) {
+            throw new Exception('File type not allowed');
+        }
+        
+        // Генерация безопасного имени
+        $safeName = bin2hex(random_bytes(16));
+        
+        // Перемещение файла
+        move_uploaded_file($file['tmp_name'], '/uploads/' . $safeName);
+    }
+}
+?&gt;</pre
+            >
+          </div>
+
+          <div class="method-list">
+            <h4>🛡️ Применённые методы защиты:</h4>
+            <ul>
+              <li>Проверка реального MIME типа (не доверять расширению)</li>
+              <li>Ограничение размера файла (5 MB)</li>
+              <li>Генерация безопасного имени файла</li>
+              <li>
+                .htaccess с <code>php_flag engine off</code> в папке загрузок
+              </li>
+              <li>Сканирование на вирусы (ClamAV)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Итоговая таблица -->
+      <div class="summary-table">
+        <h2>📊 Итоговая таблица защит</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Уязвимость</th>
+              <th>Метод защиты</th>
+              <th>Статус</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>XSS</td>
+              <td>htmlspecialchars() + CSP</td>
+              <td style="color: #28a745">✅ Исправлено</td>
+            </tr>
+            <tr>
+              <td>Information Disclosure</td>
+              <td>Отключение error_reporting + .htaccess</td>
+              <td style="color: #28a745">✅ Исправлено</td>
+            </tr>
+            <tr>
+              <td>SQL Injection</td>
+              <td>Подготовленные запросы (PDO)</td>
+              <td style="color: #28a745">✅ Исправлено</td>
+            </tr>
+            <tr>
+              <td>CSRF</td>
+              <td>CSRF токены + SameSite cookies</td>
+              <td style="color: #28a745">✅ Исправлено</td>
+            </tr>
+            <tr>
+              <td>File Inclusion</td>
+              <td>Валидация путей + белые списки</td>
+              <td style="color: #28a745">✅ Исправлено</td>
+            </tr>
+            <tr>
+              <td>File Upload</td>
+              <td>Проверка MIME + переименование</td>
+              <td style="color: #28a745">✅ Исправлено</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="footer">
+        <p>📌 Отчёт соответствует стандартам OWASP Top 10</p>
+        <p>
+          © 2026 - Лабораторная работа №7 | Аудит безопасности веб-приложений
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
